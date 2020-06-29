@@ -113,6 +113,33 @@ def test_deployment_numeric_single_input():
 
 
 @responses.activate
+def test_deployment_binary_single_output():
+    features_in = [FeatureSpec('input', 'numeric', (1,))]
+    features_out = [FeatureSpec('output', 'binary', (1,))]
+    prediction = 0.4
+
+    responses.add(
+        responses.POST,
+        'http://peltarion.com/deployment/forward',
+        json={'rows': [{'output': prediction}]}
+    )
+
+    responses.add(
+        responses.GET,
+        'http://peltarion.com/deployment/openapi.json',
+        json=mock_api_specs(features_in, features_out),
+    )
+
+    deployment = Deployment(
+        url='http://peltarion.com/deployment/forward',
+        token='deployment_token',
+    )
+
+    predictions = deployment.predict(input=0.4)
+    assert predictions == {'output': prediction}
+
+
+@responses.activate
 def test_deployment_numeric_multiple_input():
     features_in = [
         FeatureSpec('input_1', 'numeric', (1,)),

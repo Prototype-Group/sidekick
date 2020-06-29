@@ -131,6 +131,21 @@ class NumericEncoder(Encoder):
         return encoded
 
 
+class BinaryClassificationEncoder(Encoder):
+
+    def expects(self) -> Set:
+        return {int, float}
+
+    def check_shape(self, value, shape):
+        pass
+
+    def encode(self, value):
+        return value
+
+    def decode(self, encoded):
+        return encoded
+
+
 class NumpyEncoder(BinaryEncoder):
 
     def file_extension(self, value):
@@ -201,6 +216,7 @@ ENCODERS = {
     'numpy': NumpyEncoder(),
     'image': ImageEncoder(),
     'text': TextEncoder(),
+    'binary': BinaryClassificationEncoder()
 }
 
 
