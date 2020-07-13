@@ -11,39 +11,80 @@ from sidekick import Deployment
 from sidekick.data_models import FeatureSpec
 
 
-def get_feature(dtype: str, shape: List[int]):
+def get_feature_old(dtype: str, shape: List[int]):
     return {
         'extensions': {
             'x-peltarion': {
                 'type': dtype,
                 'shape': shape,
+            }
+        }
+    }
+
+
+def get_feature_new(dtype: str, shape: List[int]):
+    return {
+        'x-peltarion': {
+                'type': dtype,
+                'shape': shape,
+        }
+    }
+
+
+def get_properties(features: List[FeatureSpec], is_old: bool) -> dict:
+    return {
+        feature.name: get_feature_old(feature.dtype, feature.shape)
+        if is_old else get_feature_new(feature.dtype, feature.shape)
+        for feature in features
+    }
+
+
+def mock_api_specs_new(
+    features_in: List[FeatureSpec],
+    features_out: List[FeatureSpec]
+) -> dict:
+
+    return {
+        'paths': {
+            '/deployment/{deploymentId}/forward': {
+                "x-peltarion-tensorjson": True
+            }
+        },
+        'components': {
+            'schemas': {
+                'input-row': {
+                    'properties': get_properties(features_in, False)
+                },
+                'output-row-batch': {
+                    'properties': {
+                        'rows': {
+                            'properties': get_properties(features_out, False)
+                        },
+                    },
+                },
             },
         },
     }
 
 
-def get_properties(features: List[FeatureSpec]) -> dict:
-    return {
-        feature.name: get_feature(feature.dtype, feature.shape)
-        for feature in features
-    }
-
-
-def mock_api_specs(
+def mock_api_specs_old(
     features_in: List[FeatureSpec],
-    features_out: List[FeatureSpec],
+    features_out: List[FeatureSpec]
 ) -> dict:
 
     return {
+        'paths': {
+            '/deployment/{deploymentId}/forward': {}
+        },
         'components': {
             'schemas': {
                 'input-row': {
-                    'properties': get_properties(features_in)
+                    'properties': get_properties(features_in, True)
                 },
                 'output-row-batch': {
                     'properties': {
                         'rows': {
-                            'properties': get_properties(features_out)
+                            'properties': get_properties(features_out, True)
                         },
                     },
                 },
@@ -60,7 +101,40 @@ def test_deployment_instantiation():
     responses.add(
         responses.GET,
         'http://peltarion.com/deployment/openapi.json',
-        json=mock_api_specs(features_in, features_out),
+        json=mock_api_specs_old(features_in, features_out),
+    )
+
+    deployment = Deployment(
+        url='http://peltarion.com/deployment/forward',
+        token='deployment_token',
+    )
+
+    assert deployment.feature_specs_in[0].name == features_in[0].name
+    assert deployment.feature_specs_in[0].dtype == features_in[0].dtype
+    assert deployment.feature_specs_in[0].shape == tuple(features_in[0].shape)
+
+    assert deployment.feature_specs_out[0].name == features_out[0].name
+    assert deployment.feature_specs_out[0].dtype == features_out[0].dtype
+    assert (
+        deployment.feature_specs_out[0].shape == tuple(features_out[0].shape)
+    )
+
+    # Ensure feature_specs cannot be modified
+    deployment.feature_specs_in[0].shape = (0, 0, 0)
+    deployment.feature_specs_out[0].name = 'string'
+    assert deployment.feature_specs_in[0].shape == features_in[0].shape
+    assert deployment.feature_specs_out[0].name == features_out[0].name
+
+
+@responses.activate
+def test_deployment_instantiation_new():
+    features_in = [FeatureSpec('input', 'image', (100, 100, 3))]
+    features_out = [FeatureSpec('output', 'numeric', (1,))]
+
+    responses.add(
+        responses.GET,
+        'http://peltarion.com/deployment/openapi.json',
+        json=mock_api_specs_new(features_in, features_out),
     )
 
     deployment = Deployment(
@@ -100,7 +174,7 @@ def test_deployment_numeric_single_input():
     responses.add(
         responses.GET,
         'http://peltarion.com/deployment/openapi.json',
-        json=mock_api_specs(features_in, features_out),
+        json=mock_api_specs_old(features_in, features_out),
     )
 
     deployment = Deployment(
@@ -127,7 +201,7 @@ def test_deployment_binary_single_output():
     responses.add(
         responses.GET,
         'http://peltarion.com/deployment/openapi.json',
-        json=mock_api_specs(features_in, features_out),
+        json=mock_api_specs_old(features_in, features_out),
     )
 
     deployment = Deployment(
@@ -157,7 +231,7 @@ def test_deployment_numeric_multiple_input():
     responses.add(
         responses.GET,
         'http://peltarion.com/deployment/openapi.json',
-        json=mock_api_specs(features_in, features_out),
+        json=mock_api_specs_old(features_in, features_out),
     )
 
     deployment = Deployment(
@@ -202,7 +276,7 @@ def test_deployment_text():
     responses.add(
         responses.GET,
         'http://peltarion.com/deployment/openapi.json',
-        json=mock_api_specs(features_in, features_out),
+        json=mock_api_specs_old(features_in, features_out),
     )
 
     deployment = Deployment(
@@ -233,7 +307,7 @@ def test_deployment_categorical():
     responses.add(
         responses.GET,
         'http://peltarion.com/deployment/openapi.json',
-        json=mock_api_specs(features_in, features_out),
+        json=mock_api_specs_old(features_in, features_out),
     )
 
     deployment = Deployment(
@@ -278,7 +352,52 @@ def test_deployment_numpy_autoencoder():
     responses.add(
         responses.GET,
         'http://peltarion.com/deployment/openapi.json',
-        json=mock_api_specs(features_in, features_out),
+        json=mock_api_specs_old(features_in, features_out),
+    )
+
+    deployment = Deployment(
+        url='http://peltarion.com/deployment/forward',
+        token='deployment_token',
+    )
+
+    # Single numpy prediction
+    prediction = deployment.predict(input=arr)
+    np.testing.assert_array_equal(prediction['output'], arr)
+
+    # List of numpy predictions
+    predictions = deployment.predict_many({'input': arr} for _ in range(10))
+    for prediction in predictions:
+        np.testing.assert_array_equal(prediction['output'], arr)
+
+    # Generator of numpy predictions
+    predictions = deployment.predict_lazy({'input': arr} for _ in range(10))
+    for prediction in predictions:
+        np.testing.assert_array_equal(prediction['output'], arr)
+
+    # Send bad shape
+    with pytest.raises(ValueError):
+        deployment.predict(input=np.random.rand(100, 1, 1))
+
+
+@responses.activate
+def test_deployment_numpy_autoencoder_new():
+    shape = (100, 10, 3)
+    features_in = [FeatureSpec('input', 'numeric', shape)]
+    features_out = [FeatureSpec('output', 'numeric', shape)]
+
+    arr = np.random.rand(*shape).astype(np.float32)
+    encoded = sidekick.encode.FloatTensorEncoder().encode_json(arr)
+
+    responses.add(
+        responses.POST,
+        'http://peltarion.com/deployment/forward',
+        json={'rows': [{'output': encoded}]},
+    )
+
+    responses.add(
+        responses.GET,
+        'http://peltarion.com/deployment/openapi.json',
+        json=mock_api_specs_new(features_in, features_out),
     )
 
     deployment = Deployment(
@@ -324,7 +443,7 @@ def test_deployment_image_autoencoder():
     responses.add(
         responses.GET,
         'http://peltarion.com/deployment/openapi.json',
-        json=mock_api_specs(features_in, features_out),
+        json=mock_api_specs_old(features_in, features_out),
     )
 
     deployment = Deployment(
@@ -355,7 +474,7 @@ def test_deployment_user_agent():
     responses.add(
         responses.GET,
         'http://peltarion.com/deployment/openapi.json',
-        json=mock_api_specs(features_in, features_out),
+        json=mock_api_specs_old(features_in, features_out),
     )
 
     deployment = Deployment(

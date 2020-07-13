@@ -174,6 +174,25 @@ class NumpyEncoder(BinaryEncoder):
         return array
 
 
+class FloatTensorEncoder(Encoder):
+
+    def expects(self) -> Set:
+        return {np.ndarray}
+
+    def check_shape(self, value: np.ndarray, shape: Tuple[int, ...]):
+        if value.shape != shape:
+            raise ValueError('Expected shape: %s, numpy array has shape: %s'
+                             % (shape, value.shape))
+
+    def encode(self, value: np.ndarray):
+        value = value.astype(np.float32)
+        return {'shape': value.shape, 'data': value.flatten().tolist()}
+
+    def decode(self, encoded) -> np.ndarray:
+        return np.array(encoded['data'],
+                        dtype=np.float32).reshape(encoded['shape'])
+
+
 class ImageEncoder(BinaryEncoder):
 
     def file_extension(self, value):
@@ -210,7 +229,8 @@ class ImageEncoder(BinaryEncoder):
         return image
 
 
-ENCODERS = {
+# Separate to get rid of dataset deployment mix
+DATASET_ENCODERS = {
     'numeric': NumericEncoder(),
     'categorical': CategoricalEncoder(),
     'numpy': NumpyEncoder(),
@@ -220,9 +240,20 @@ ENCODERS = {
 }
 
 
+ENCODERS = {
+    'numeric': NumericEncoder(),
+    'categorical': CategoricalEncoder(),
+    'numpy': NumpyEncoder(),
+    'image': ImageEncoder(),
+    'text': TextEncoder(),
+    'binary': BinaryClassificationEncoder(),
+    'floattensor': FloatTensorEncoder()
+}
+
+
 ENCODER_COMPATIBILITY = dict(itertools.chain.from_iterable(
     ((compatible_type, encoder) for compatible_type in encoder.expects())
-    for encoder in ENCODERS.values()
+    for encoder in DATASET_ENCODERS.values()
 ))
 
 
@@ -234,21 +265,25 @@ FILE_EXTENSION_ENCODERS = {
 }
 
 
-def get_encoder(dtype: str, shape: Tuple[int, ...]) -> Encoder:
+def get_encoder(dtype: str, shape: Tuple[int, ...],
+                tensor_json: bool) -> Encoder:
     if dtype == 'numeric' and (len(shape) > 1 or shape[0] > 1):
-        return ENCODERS['numpy']
+        if tensor_json:
+            return ENCODERS['floattensor']
+        else:
+            return ENCODERS['numpy']
     return ENCODERS[dtype]
 
 
-def encode_feature(feature, specs: FeatureSpec) -> Any:
-    encoder = get_encoder(specs.dtype, specs.shape)
+def encode_feature(feature, specs: FeatureSpec, tensor_json: bool) -> Any:
+    encoder = get_encoder(specs.dtype, specs.shape, tensor_json)
     encoder.check_type(feature)
     encoder.check_shape(feature, specs.shape)
     return encoder.encode_json(feature)
 
 
-def decode_feature(feature, specs: FeatureSpec) -> Any:
-    encoder = get_encoder(specs.dtype, specs.shape)
+def decode_feature(feature, specs: FeatureSpec, tensor_json: bool) -> Any:
+    encoder = get_encoder(specs.dtype, specs.shape, tensor_json)
     decoded = encoder.decode_json(feature)
     encoder.check_type(decoded)
     encoder.check_shape(decoded, specs.shape)

@@ -13,24 +13,26 @@ PredictData = Dict[str, List[Dict[str, Any]]]
 
 
 def prediction_request(items: Iterable[DataItem],
-                       feature_specs: List[FeatureSpec]) -> PredictData:
+                       feature_specs: List[FeatureSpec],
+                       tensor_json: bool) -> PredictData:
     rows = list()
     for item in items:
         row = dict()
         for feature_spec in feature_specs:
             if feature_spec.name not in item:
-                raise ValueError(
-                    'Item is missing feature: %s' % feature_spec.name
-                )
+                raise ValueError('Item is missing feature: %s' %
+                                 feature_spec.name)
             feature = item[feature_spec.name]
-            row[feature_spec.name] = encode_feature(feature, feature_spec)
+            row[feature_spec.name] = encode_feature(feature, feature_spec,
+                                                    tensor_json)
         rows.append(row)
     return {'rows': rows}
 
 
 def parse_prediction(
         data: PredictData,
-        feature_specs: List[FeatureSpec]) -> Generator[DataItem, None, None]:
+        feature_specs: List[FeatureSpec],
+        tensor_json: bool) -> Generator[DataItem, None, None]:
     if 'errorCode' in data:
         raise IOError(
             '%s: %s' % (data['errorCode'], data.get('errorMessage', '')))
@@ -48,19 +50,29 @@ def parse_prediction(
             item[feature_spec.name] = decode_feature(
                 row[feature_spec.name],
                 feature_spec,
+                tensor_json
             )
         yield item
 
 
-def get_feature_specs(specs: Dict) -> List[FeatureSpec]:
-    return [
-        FeatureSpec(
-            name=feature_name,
-            dtype=specs['extensions']['x-peltarion']['type'],
-            shape=tuple(specs['extensions']['x-peltarion']['shape']),
-        )
-        for feature_name, specs in specs.items()
-    ]
+def get_feature_specs(specs: Dict,
+                      correct_custom_property: bool) -> List[FeatureSpec]:
+    if correct_custom_property:
+        return [
+            FeatureSpec(
+                name=feature_name,
+                dtype=specs['x-peltarion']['type'],
+                shape=tuple(specs['x-peltarion']['shape']),
+            ) for feature_name, specs in specs.items()
+        ]
+    else:
+        return [
+            FeatureSpec(
+                name=feature_name,
+                dtype=specs['extensions']['x-peltarion']['type'],
+                shape=tuple(specs['extensions']['x-peltarion']['shape']),
+            ) for feature_name, specs in specs.items()
+        ]
 
 
 class Deployment:
@@ -81,14 +93,32 @@ class Deployment:
             url=urllib.parse.urljoin(url, 'openapi.json'),
             headers=self._headers,
         )
+
         response.raise_for_status()
-        specs = response.json()['components']['schemas']
+        json_response = response.json()
+        # This property will always be available after backend release.
+        # TODO: Remove 'correct_custom_property' and if-statement after
+        # backend have been released.
+        correct_custom_property = 'x-peltarion-tensorjson' in json_response[
+            'paths']['/deployment/{deploymentId}/forward']
+        if correct_custom_property:
+            self._tensor_json = json_response['paths'][
+                '/deployment/{deploymentId}/forward']['x-peltarion-tensorjson']
+        else:
+            self._tensor_json = False
+        specs = json_response['components']['schemas']
         self._feature_specs_in = get_feature_specs(
-            specs['input-row']['properties']
+            specs['input-row']['properties'],
+            correct_custom_property
         )
         self._feature_specs_out = get_feature_specs(
-            specs['output-row-batch']['properties']['rows']['properties']
+            specs['output-row-batch']['properties']['rows']['properties'],
+            correct_custom_property
         )
+
+    @property
+    def tensor_json(self) -> bool:
+        return self._tensor_json
 
     @property
     def feature_specs_in(self) -> List[FeatureSpec]:
@@ -106,7 +136,8 @@ class Deployment:
             if not batch:
                 break
 
-            encoded = prediction_request(batch, self._feature_specs_in)
+            encoded = prediction_request(batch, self._feature_specs_in,
+                                         self._tensor_json)
             response = self._session.post(
                 url=self._url,
                 headers=self._headers,
@@ -115,7 +146,8 @@ class Deployment:
             response.raise_for_status()  # Raise exceptions
             yield from parse_prediction(
                 response.json(),
-                self._feature_specs_out
+                self._feature_specs_out,
+                self._tensor_json
             )
 
     def predict_many(self, items: Iterable[DataItem]) -> List[DataItem]:

@@ -2,9 +2,9 @@ import numpy as np
 import pytest
 from PIL import Image
 
-from sidekick.encode import (ENCODERS, CategoricalEncoder, ImageEncoder,
-                             NumericEncoder, NumpyEncoder, TextEncoder,
-                             get_encoder)
+from sidekick.encode import (ENCODERS, CategoricalEncoder, FloatTensorEncoder,
+                             ImageEncoder, NumericEncoder, NumpyEncoder,
+                             TextEncoder, get_encoder)
 
 
 def test_numeric_encoder():
@@ -62,6 +62,21 @@ def test_image_encoder():
     encoder.check_shape(image, shape)
 
 
+def test_floattensor_encoder():
+    encoder = FloatTensorEncoder()
+
+    shape = (100, 10, 3)
+    arr = np.random.rand(*shape).astype(np.float32)
+
+    encoder.check_shape(arr, shape)
+    with pytest.raises(ValueError):
+        encoder.check_shape(arr, (99, 10, 3))
+
+    encoder.check_type(arr)
+    with pytest.raises(TypeError):
+        encoder.check_type([1, 2, 3])
+
+
 def test_numpy_encoder():
     encoder = NumpyEncoder()
 
@@ -78,7 +93,20 @@ def test_numpy_encoder():
 
 
 def test_get_encoder():
-    assert get_encoder(dtype='numeric', shape=(1,)) is ENCODERS['numeric']
-    assert get_encoder(dtype='numeric', shape=(2,)) is ENCODERS['numpy']
-    assert get_encoder(dtype='numeric', shape=(2, 2)) is ENCODERS['numpy']
-    assert get_encoder(dtype='image', shape=(2, 3)) is ENCODERS['image']
+    assert get_encoder(dtype='numeric', shape=(1, ),
+                       tensor_json=False) is ENCODERS['numeric']
+    assert get_encoder(dtype='numeric', shape=(2, ),
+                       tensor_json=False) is ENCODERS['numpy']
+    assert get_encoder(dtype='numeric', shape=(2, 2),
+                       tensor_json=False) is ENCODERS['numpy']
+    assert get_encoder(dtype='image', shape=(2, 3),
+                       tensor_json=False) is ENCODERS['image']
+    # Remove numpy output
+    assert get_encoder(dtype='numeric', shape=(1, ),
+                       tensor_json=True) is ENCODERS['numeric']
+    assert get_encoder(dtype='numeric', shape=(2, ),
+                       tensor_json=True) is ENCODERS['floattensor']
+    assert get_encoder(dtype='numeric', shape=(2, 2),
+                       tensor_json=True) is ENCODERS['floattensor']
+    assert get_encoder(dtype='image', shape=(2, 3),
+                       tensor_json=True) is ENCODERS['image']
