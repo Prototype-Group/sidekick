@@ -32,17 +32,18 @@ def crop_image(image: Image.Image, size: Tuple[int, int]) -> Image.Image:
 
 def crop_and_resize_image(
         image: Image.Image, size: Tuple[int, int]) -> Image.Image:
-    size = np.array(size)
+    size_arr = np.array(size)
     source_size = np.array(image.size)
-    if np.any([x <= 0 for x in source_size]):
-        raise ValueError('Bad shape requested: %s' % (tuple(size), ))
+    if any([x <= 0 for x in source_size]):
+        raise ValueError('Bad shape requested: %s' % str(size))
 
     # Find best factor for crop
-    for source_dim, target_dim in zip(source_size, size):
+    for source_dim, target_dim in zip(source_size, size_arr):
         # Check that factor * size fits in source_size
-        if np.all(source_dim * size <= source_size * target_dim):
+        array = source_dim * size_arr <= source_size * target_dim
+        if np.all(array):  # type: ignore
             factor = source_dim / target_dim
-            image = crop_image(image, factor * size)
+            image = crop_image(image, factor * size_arr)
             image = resize_image(image, size)
             return image
 
@@ -148,8 +149,10 @@ def create_dataset(dataset_path: str,
 
     object_columns = {}
     for column, dtype in dataset_index.dtypes.items():
-        if (dtype == np.dtype(object) and
-                not isinstance(dataset_index[column].iloc[0], str)):
+        if (
+            dtype == np.dtype('object')
+            and not isinstance(dataset_index[column].iloc[0], str)
+        ):
             object_columns[column] = type(dataset_index[column].iloc[0])
 
     unsupported_types = set(object_columns.values()).difference(
