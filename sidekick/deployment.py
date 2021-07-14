@@ -55,24 +55,14 @@ def parse_prediction(
         yield item
 
 
-def get_feature_specs(specs: Dict,
-                      correct_custom_property: bool) -> List[FeatureSpec]:
-    if correct_custom_property:
-        return [
-            FeatureSpec(
-                name=feature_name,
-                dtype=specs['x-peltarion']['type'],
-                shape=tuple(specs['x-peltarion']['shape']),
-            ) for feature_name, specs in specs.items()
-        ]
-    else:
-        return [
-            FeatureSpec(
-                name=feature_name,
-                dtype=specs['extensions']['x-peltarion']['type'],
-                shape=tuple(specs['extensions']['x-peltarion']['shape']),
-            ) for feature_name, specs in specs.items()
-        ]
+def get_feature_specs(specs: Dict) -> List[FeatureSpec]:
+    return [
+        FeatureSpec(
+            name=feature_name,
+            dtype=specs['x-peltarion']['type'],
+            shape=tuple(specs['x-peltarion']['shape']),
+        ) for feature_name, specs in specs.items()
+    ]
 
 
 class Deployment:
@@ -96,24 +86,16 @@ class Deployment:
 
         response.raise_for_status()
         json_response = response.json()
-        # This property will always be available after backend release.
-        # TODO: Remove 'correct_custom_property' and if-statement after
-        # backend have been released.
-        correct_custom_property = 'x-peltarion-tensorjson' in json_response[
-            'paths']['/deployment/{deploymentId}/forward']
-        if correct_custom_property:
-            self._tensor_json = json_response['paths'][
-                '/deployment/{deploymentId}/forward']['x-peltarion-tensorjson']
-        else:
-            self._tensor_json = False
+
+        self._tensor_json = json_response['paths'][
+            '/deployment/{deploymentId}/forward']['x-peltarion-tensorjson']
+
         specs = json_response['components']['schemas']
         self._feature_specs_in = get_feature_specs(
-            specs['input-row']['properties'],
-            correct_custom_property
+            specs['input-row']['properties']
         )
         self._feature_specs_out = get_feature_specs(
-            specs['output-row-batch']['properties']['rows']['properties'],
-            correct_custom_property
+            specs['output-row-batch']['properties']['rows']['properties']
         )
 
     @property

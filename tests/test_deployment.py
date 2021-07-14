@@ -1,5 +1,5 @@
 import random
-from typing import List
+from typing import List, Tuple
 
 import numpy as np
 import pytest
@@ -11,7 +11,7 @@ from sidekick import Deployment
 from sidekick.data_models import FeatureSpec
 
 
-def get_feature_old(dtype: str, shape: List[int]):
+def get_feature_old(dtype: str, shape: Tuple[int, ...]):
     return {
         'extensions': {
             'x-peltarion': {
@@ -22,7 +22,7 @@ def get_feature_old(dtype: str, shape: List[int]):
     }
 
 
-def get_feature_new(dtype: str, shape: List[int]):
+def get_feature_new(dtype: str, shape: Tuple[int, ...]):
     return {
         'x-peltarion': {
                 'type': dtype,
@@ -101,7 +101,7 @@ def test_deployment_instantiation():
     responses.add(
         responses.GET,
         'http://peltarion.com/deployment/openapi.json',
-        json=mock_api_specs_old(features_in, features_out),
+        json=mock_api_specs_new(features_in, features_out),
     )
 
     deployment = Deployment(
@@ -174,7 +174,7 @@ def test_deployment_numeric_single_input():
     responses.add(
         responses.GET,
         'http://peltarion.com/deployment/openapi.json',
-        json=mock_api_specs_old(features_in, features_out),
+        json=mock_api_specs_new(features_in, features_out),
     )
 
     deployment = Deployment(
@@ -201,7 +201,7 @@ def test_deployment_binary_single_output():
     responses.add(
         responses.GET,
         'http://peltarion.com/deployment/openapi.json',
-        json=mock_api_specs_old(features_in, features_out),
+        json=mock_api_specs_new(features_in, features_out),
     )
 
     deployment = Deployment(
@@ -231,7 +231,7 @@ def test_deployment_numeric_multiple_input():
     responses.add(
         responses.GET,
         'http://peltarion.com/deployment/openapi.json',
-        json=mock_api_specs_old(features_in, features_out),
+        json=mock_api_specs_new(features_in, features_out),
     )
 
     deployment = Deployment(
@@ -276,7 +276,7 @@ def test_deployment_text():
     responses.add(
         responses.GET,
         'http://peltarion.com/deployment/openapi.json',
-        json=mock_api_specs_old(features_in, features_out),
+        json=mock_api_specs_new(features_in, features_out),
     )
 
     deployment = Deployment(
@@ -307,7 +307,7 @@ def test_deployment_categorical():
     responses.add(
         responses.GET,
         'http://peltarion.com/deployment/openapi.json',
-        json=mock_api_specs_old(features_in, features_out),
+        json=mock_api_specs_new(features_in, features_out),
     )
 
     deployment = Deployment(
@@ -335,24 +335,25 @@ def test_deployment_categorical():
 
 
 @responses.activate
-def test_deployment_numpy_autoencoder():
-    shape = (100, 10, 3)
-    features_in = [FeatureSpec('input', 'numeric', shape)]
-    features_out = [FeatureSpec('output', 'numeric', shape)]
-
-    arr = np.random.rand(*shape).astype(np.float32)
-    encoded = sidekick.encode.NumpyEncoder().encode_json(arr)
+def test_deployment_input_categorical():
+    categories = 10
+    features_in = [
+        FeatureSpec('input_1', 'categorical', (1,)),
+        FeatureSpec('input_2', 'categorical', (1,)),
+    ]
+    features_out = [FeatureSpec('output', 'categorical', (categories,))]
+    predictions = {str(i): random.random() for i in range(categories)}
 
     responses.add(
         responses.POST,
         'http://peltarion.com/deployment/forward',
-        json={'rows': [{'output': encoded}]},
+        json={'rows': [{'output': predictions}]},
     )
 
     responses.add(
         responses.GET,
         'http://peltarion.com/deployment/openapi.json',
-        json=mock_api_specs_old(features_in, features_out),
+        json=mock_api_specs_new(features_in, features_out),
     )
 
     deployment = Deployment(
@@ -360,23 +361,75 @@ def test_deployment_numpy_autoencoder():
         token='deployment_token',
     )
 
-    # Single numpy prediction
-    prediction = deployment.predict(input=arr)
-    np.testing.assert_array_equal(prediction['output'], arr)
+    prediction = deployment.predict(input_1=1, input_2=2)
+    assert prediction == {'output': predictions}
 
-    # List of numpy predictions
-    predictions = deployment.predict_many({'input': arr} for _ in range(10))
-    for prediction in predictions:
-        np.testing.assert_array_equal(prediction['output'], arr)
+    prediction = deployment.predict(input_1=1, input_2='alsovalid')
+    assert prediction == {'output': predictions}
 
-    # Generator of numpy predictions
-    predictions = deployment.predict_lazy({'input': arr} for _ in range(10))
-    for prediction in predictions:
-        np.testing.assert_array_equal(prediction['output'], arr)
+    # Send bad type
+    with pytest.raises(TypeError):
+        deployment.predict(input_1=1.01, input_2='foo')
 
-    # Send bad shape
+    # Return bad shape
+    predictions = {str(i): random.random() for i in range(5)}
+    responses.replace(
+        responses.POST,
+        'http://peltarion.com/deployment/forward',
+        json={'rows': [{'output': predictions}]},
+    )
+
     with pytest.raises(ValueError):
-        deployment.predict(input=np.random.rand(100, 1, 1))
+        deployment.predict(input_1='mango', input_2='hej')
+
+
+@responses.activate
+def test_deployment_input_binary():
+    categories = 10
+    features_in = [
+        FeatureSpec('input_1', 'binary', (1,)),
+        FeatureSpec('input_2', 'binary', (1,)),
+    ]
+    features_out = [FeatureSpec('output', 'categorical', (categories,))]
+    predictions = {str(i): random.random() for i in range(categories)}
+
+    responses.add(
+        responses.POST,
+        'http://peltarion.com/deployment/forward',
+        json={'rows': [{'output': predictions}]},
+    )
+
+    responses.add(
+        responses.GET,
+        'http://peltarion.com/deployment/openapi.json',
+        json=mock_api_specs_new(features_in, features_out),
+    )
+
+    deployment = Deployment(
+        url='http://peltarion.com/deployment/forward',
+        token='deployment_token',
+    )
+
+    prediction = deployment.predict(input_1=1, input_2="false")
+    assert prediction == {'output': predictions}
+
+    prediction = deployment.predict(input_1=1, input_2='alsovalid')
+    assert prediction == {'output': predictions}
+
+    # Send bad type
+    with pytest.raises(TypeError):
+        deployment.predict(input_1=1.01, input_2='foo')
+
+    # Return bad shape
+    predictions = {str(i): random.random() for i in range(5)}
+    responses.replace(
+        responses.POST,
+        'http://peltarion.com/deployment/forward',
+        json={'rows': [{'output': predictions}]},
+    )
+
+    with pytest.raises(ValueError):
+        deployment.predict(input_1='mango', input_2='hej')
 
 
 @responses.activate
@@ -443,7 +496,7 @@ def test_deployment_image_autoencoder():
     responses.add(
         responses.GET,
         'http://peltarion.com/deployment/openapi.json',
-        json=mock_api_specs_old(features_in, features_out),
+        json=mock_api_specs_new(features_in, features_out),
     )
 
     deployment = Deployment(
@@ -474,7 +527,7 @@ def test_deployment_user_agent():
     responses.add(
         responses.GET,
         'http://peltarion.com/deployment/openapi.json',
-        json=mock_api_specs_old(features_in, features_out),
+        json=mock_api_specs_new(features_in, features_out),
     )
 
     deployment = Deployment(

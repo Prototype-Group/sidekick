@@ -219,4 +219,4 @@ print(sidekick.encode.FILE_EXTENSION_ENCODERS)
 ```
 
 # Examples
-Examples of how to use sidekick are available at: [examples/](examples/)
+Examples of how to use sidekick are available at: [examples/](examples/).
