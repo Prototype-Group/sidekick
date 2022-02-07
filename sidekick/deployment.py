@@ -61,6 +61,7 @@ def get_feature_specs(specs: Dict) -> List[FeatureSpec]:
             name=feature_name,
             dtype=specs['x-peltarion']['type'],
             shape=tuple(specs['x-peltarion']['shape']),
+            categories=tuple(specs['enum'] if 'enum' in specs else []),
         ) for feature_name, specs in specs.items()
     ]
 

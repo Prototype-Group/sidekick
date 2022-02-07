@@ -1,9 +1,9 @@
 from zipfile import ZipFile
 
-import pytest
-import responses
 from PIL import Image
 
+import pytest
+import responses
 from sidekick.dataset_client import DatasetClient, Status, UploadJob
 
 

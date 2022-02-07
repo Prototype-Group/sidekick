@@ -2,10 +2,10 @@ import random
 from typing import List, Tuple
 
 import numpy as np
-import pytest
-import responses
 from PIL import Image
 
+import pytest
+import responses
 import sidekick
 from sidekick import Deployment
 from sidekick.data_models import FeatureSpec

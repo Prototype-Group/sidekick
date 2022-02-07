@@ -4,9 +4,9 @@ import zipfile
 
 import numpy as np
 import pandas as pd
-import pytest
 from PIL import Image
 
+import pytest
 import sidekick
 
 

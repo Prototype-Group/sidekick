@@ -1,7 +1,7 @@
 import numpy as np
-import pytest
 from PIL import Image
 
+import pytest
 from sidekick.encode import (OUTPUT_ENCODERS, CategoricalOutputEncoder,
                              FloatTensorEncoder, ImageEncoder, NumericEncoder,
                              NumpyEncoder, TextEncoder, TextOrIntInputEncoder,
