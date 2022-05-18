@@ -224,8 +224,15 @@ Examples of how to use sidekick are available at: [examples/](examples/).
 
 # TODO:
 
-- [ ] Create notebook covering the data exploration and preprocessing end-to-end
+- [ ] Create notebook covering the data exploration and preprocessing end-to-end --> https://peltarion.com/knowledge-center/documentation/datasets-view/data-preprocessing
+- [ ] Inspiration --> https://www.kaggle.com/code/pmarcelino/comprehensive-data-exploration-with-python/notebook
 - [ ] Allow dataset splits based on distributions for train, valid, test
 - [ ] Find correlation automatically
 - [ ] Make scatter plot for specific features
-- [ ] Inspiration --> https://www.kaggle.com/code/pmarcelino/comprehensive-data-exploration-with-python/notebook
+- [ ] Refactor and improve the names of new functions
+- [ ] Make sure that all functions are tested
+- [ ] Include new augmented dataset and are hosted
+- [ ] Test upload dataset to platform
+- [ ] Update README for preprocessing and data exploration instructions
+- [ ] Update README to simplify for new users
+- [ ] Instructions for installing and starting preprocessing [examples/preprocess-and-inspect-data.ipynb](examples/preprocess-and-inspect-data.ipynb)
