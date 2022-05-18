@@ -122,14 +122,14 @@ client = sidekick.DatasetClient(url='<url>', token='<token>')
 ```
 
 This dataset client may now be used to upload one or many files to the Data API service. Uploading files will create a
-dataset to the project that the token is tied to. The Data API consumer could provide `dataset_name` and 
-`dataset_description` to the dataset. If omitted, default name and description will be set to `Sidekick upload` 
+dataset to the project that the token is tied to. The Data API consumer could provide `dataset_name` and
+`dataset_description` to the dataset. If omitted, default name and description will be set to `Sidekick upload`
 
 ```python
 filepaths = ['path/to/dataset.zip']
 response = client.upload_data(
-    filepaths=filepaths, 
-    name='My dataset', 
+    filepaths=filepaths,
+    name='My dataset',
     description='My description'
 )
 ```
@@ -155,10 +155,10 @@ import sidekick
 client = sidekick.Deployment(url='<url>', token='<token>')
 ```
 
-This deployment client may now be used to get predictions for images. 
+This deployment client may now be used to get predictions for images.
 
-The feature specifications from the table of input and output parameters can be accessed as a 
-property of the client object: 
+The feature specifications from the table of input and output parameters can be accessed as a
+property of the client object:
 
 ```python
 # input features
@@ -220,3 +220,12 @@ print(sidekick.encode.FILE_EXTENSION_ENCODERS)
 
 # Examples
 Examples of how to use sidekick are available at: [examples/](examples/).
+
+
+# TODO:
+
+- [ ] Create notebook covering the data exploration and preprocessing end-to-end
+- [ ] Allow dataset splits based on distributions for train, valid, test
+- [ ] Find correlation automatically
+- [ ] Make scatter plot for specific features
+- [ ] Inspiration --> https://www.kaggle.com/code/pmarcelino/comprehensive-data-exploration-with-python/notebook
