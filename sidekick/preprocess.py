@@ -3,6 +3,7 @@ from datetime import datetime
 
 import numpy as np
 import pandas as pd
+from pandas.api.types import is_object_dtype
 from PIL import Image
 
 VALID_IMPUTATIONS = ["mean", "mode", "drop", "replace", "interpolate"]
@@ -13,37 +14,17 @@ Knowledge center instructions:
 
 Dataset:
 - https://storage.googleapis.com/bucket-8732/datalibrary/forecast_sales.csv
-
-Real (Sales forecasting) dataset:
-input:
-    'Date',
-    'Year',
-    'Week',
-    'Day',
-    'Store Name',
-    'Location',
-    'Store Type',
-    'Advertising Level',
-    'Special Promotion',
-    'Holiday',
-    'Open',
-
-target:
-    'Revenue'
-
-Synthetic dataset:
-input:
-    age,
-    gender,
-    annual income,
-    employment type,
-    industry that the person works,
-    number of family members living with customer,
-    if customer has chronic diseases,
-    if customer has bought any insurance before etc.
-
-output:
 """
+
+
+def _to_list(lst: typing.Union[str, typing.List[str]]) -> typing.List[str]:
+    return [lst] if isinstance(lst, (int, str, float)) else lst
+
+
+def convert_to_categorical(table: pd.DataFrame):
+    """Convert pandas DataFrame string/objects to categorical."""
+    table = table.apply(lambda x: pd.Categorical(x).codes if is_object_dtype(x) else x)
+    return table.apply(lambda x: x.astype("category") if is_object_dtype(x) else x)
 
 
 def remove_duplicate_table_rows(table: pd.DataFrame) -> pd.DataFrame:
@@ -56,6 +37,7 @@ def remove_duplicate_table_rows(table: pd.DataFrame) -> pd.DataFrame:
 
 
 # TODO
+# https://www.kaggle.com/code/pmarcelino/comprehensive-data-exploration-with-python?scriptVersionId=94433095&cellId=43
 def drop_missing_values(table: pd.DataFrame):
     table = table.dropna()
     table.reset_index(inplace=True)
