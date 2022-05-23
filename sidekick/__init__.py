@@ -7,7 +7,6 @@ from .deployment import Deployment
 from .inspection import (
     plot,
     plot_correlation,
-    plot_count,
     plot_histogram,
     plot_outliers,
     plot_pairs,
@@ -15,10 +14,13 @@ from .inspection import (
     show_missing,
 )
 from .preprocess import (
+    add_split,
     convert_to_categorical,
+    drop_duplicates,
     drop_missing_values,
-    impute_table_columns,
-    remove_duplicate_table_rows,
+    filter_values,
+    impute_values,
+    select_values,
     split,
 )
 
@@ -31,16 +33,18 @@ __all__ = [
     "process_image",
     "convert_to_categorical",
     "drop_missing_values",
-    "impute_table_columns",
-    "remove_duplicate_table_rows",
+    "impute_values",
+    "drop_duplicates",
+    "filter_values",
+    "select_values",
     "split",
-    "plot_correlation",
-    "plot_pairs",
-    "plot_histogram",
+    "add_split",
     "plot",
-    "plot_count",
-    "plot_scatter",
+    "plot_correlation",
+    "plot_histogram",
     "plot_outliers",
+    "plot_pairs",
+    "plot_scatter",
     "show_missing",
 ]
 

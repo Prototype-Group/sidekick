@@ -50,34 +50,30 @@ def test_drop_missing(data: pd.DataFrame):
 def test_impute_mean(data: pd.DataFrame):
     method = "mean"
     assert data.isnull().values.any()
-    table = sidekick.impute_table_columns(data.copy(), columns="Year", method=method)
+    table = sidekick.impute_values(data.copy(), columns="Year", method=method)
     assert table.isnull().values.any() == True
     assert table["Year"].isnull().values.any() == False
 
-    table = sidekick.impute_table_columns(data.copy(), columns=["Year"], method=method)
+    table = sidekick.impute_values(data.copy(), columns=["Year"], method=method)
     assert table.isnull().values.any() == True
     assert table["Year"].isnull().values.any() == False
 
-    table = sidekick.impute_table_columns(
-        data.copy(), columns=["Year", "Week"], method=method
-    )
+    table = sidekick.impute_values(data.copy(), columns=["Year", "Week"], method=method)
     assert table.isnull().values.any() == False
 
 
 def test_impute_mode(data: pd.DataFrame):
     method = "mode"
     assert data.isnull().values.any()
-    table = sidekick.impute_table_columns(data.copy(), columns="Year", method=method)
+    table = sidekick.impute_values(data.copy(), columns="Year", method=method)
     assert table.isnull().values.any() == True
     assert table["Year"].isnull().values.any() == False
 
-    table = sidekick.impute_table_columns(data.copy(), columns=["Year"], method=method)
+    table = sidekick.impute_values(data.copy(), columns=["Year"], method=method)
     assert table.isnull().values.any() == True
     assert table["Year"].isnull().values.any() == False
 
-    table = sidekick.impute_table_columns(
-        data.copy(), columns=["Year", "Week"], method=method
-    )
+    table = sidekick.impute_values(data.copy(), columns=["Year", "Week"], method=method)
     assert table.isnull().values.any() == False
 
 
@@ -85,21 +81,21 @@ def test_impute_value(data: pd.DataFrame):
     method = "replace"
     value = -1
     assert data.isnull().values.any()
-    table = sidekick.impute_table_columns(
+    table = sidekick.impute_values(
         data.copy(), columns="Year", method=method, value=value
     )
     assert table.isnull().values.any() == True
     assert table["Year"].isnull().values.any() == False
     assert table["Year"].value_counts()[value] == 3
 
-    table = sidekick.impute_table_columns(
+    table = sidekick.impute_values(
         data.copy(), columns=["Year"], method=method, value=value
     )
     assert table.isnull().values.any() == True
     assert table["Year"].isnull().values.any() == False
     assert table["Year"].value_counts()[value] == 3
 
-    table = sidekick.impute_table_columns(
+    table = sidekick.impute_values(
         data.copy(), columns=["Year", "Week"], method=method, value=value
     )
     assert table.isnull().values.any() == False
@@ -110,13 +106,13 @@ def test_impute_value(data: pd.DataFrame):
 def test_impute_drop(data: pd.DataFrame):
     method = "drop"
     assert data.isnull().values.any()
-    table = sidekick.impute_table_columns(data, columns="Year", method=method)
+    table = sidekick.impute_values(data, columns="Year", method=method)
     assert table["Year"].isnull().values.any() == False
 
-    table = sidekick.impute_table_columns(data, columns=["Year"], method=method)
+    table = sidekick.impute_values(data, columns=["Year"], method=method)
     assert table["Year"].isnull().values.any() == False
 
-    table = sidekick.impute_table_columns(
+    table = sidekick.impute_values(
         data, columns=data.columns, target="Revenue", method=method
     )
     assert table.isnull().values.any() == False

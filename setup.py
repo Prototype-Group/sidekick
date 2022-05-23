@@ -6,7 +6,7 @@ REQUIRED_PACKAGES = [
     "pillow",
     "requests",
     "tqdm",
-    "sklearn",
+    "scikit-learn",
     "matplotlib",
     "seaborn",
 ]
