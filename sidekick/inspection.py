@@ -222,7 +222,7 @@ def plot_scatter(
         table=table,
         columns=columns,
         target=target,
-        kind="bar",
+        kind=kind,
         figsize=figsize,
         **kwargs,
     )

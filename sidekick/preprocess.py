@@ -1,8 +1,8 @@
 import typing
+from functools import partial
 
 import numpy as np
 import pandas as pd
-import sklearn
 from pandas.api.types import is_object_dtype
 from sklearn.model_selection import train_test_split
 
@@ -171,7 +171,7 @@ def select_or_filter(
     column: str,
     values: typing.Optional[typing.Union[typing.Any, typing.List[typing.Any]]] = None,
     conditions: typing.Optional[typing.Union[str, typing.List[str]]] = None,
-    invert=False,
+    invert_selection: bool = False,
 ):
     """Helper function for selecting exact values or based on condition from a DataFrame
 
@@ -213,7 +213,7 @@ def select_or_filter(
     # Select/filter based on "exact" matched values
     values = _to_list(values)
     mask = table[column].isin(values)
-    results = _selected(table, mask, invert)
+    results = _selected(table, mask, invert_selection)
 
     # Select/filter based on condition
     conditions = _to_list(conditions)
@@ -222,8 +222,8 @@ def select_or_filter(
             mask = eval(f"table[column] {cond}")
             results = pd.merge(
                 results,
-                _selected(table, mask, invert),
-                how=("inner" if invert else "outer"),
+                _selected(table, mask, invert_selection),
+                how=("inner" if invert_selection else "outer"),
             )
         except Exception as e:
             print(f"Could not evaluate condition: {cond}... Got exception: {e}")
@@ -232,94 +232,8 @@ def select_or_filter(
     return results
 
 
-def filter_values(
-    table: pd.DataFrame,
-    column: str,
-    values: typing.Optional[typing.Union[typing.Any, typing.List[typing.Any]]] = None,
-    conditions: typing.Optional[typing.Union[str, typing.List[str]]] = None,
-):
-    """Filter DataFrame cased on condition
-
-    Match either exact values (values) or a logical condition (conditions).
-
-    Example:
-        >>> df = pd.DataFrame(data={'col1': [3, 14, -2, 28],
-                                    'col2': [8, 21, 1, 34]})
-        >>> sidekick.filter_values(df, column='col1', values=[14, -2, 28])
-          col1  col2
-        0    3	   8
-        >>> sidekick.filter_values(df, column='col1', values=[3])
-          col1  col2
-        0   14	  21
-        1   -2     1
-        2   28    34
-        >>> sidekick.filter_values(df, column=df.columns[0], values=[3], conditions=["<2"])
-           col1  col2
-        0   14	  21
-        1   28    34
-
-    Args:
-        table: DataFrame
-        column: Column to find values or match condition for
-        values: Values to find exact values for. Defaults to None.
-        conditions: Logical conditions to match for. Defaults to None.
-
-    Returns:
-        DataFrame which fulfill the filtering criteria
-    """
-
-    return select_or_filter(
-        table,
-        column=column,
-        values=values,
-        conditions=conditions,
-        invert=True,
-    )
-
-
-def select_values(
-    table: pd.DataFrame,
-    column: str,
-    values: typing.Optional[typing.Union[typing.Any, typing.List[typing.Any]]] = None,
-    conditions: typing.Optional[typing.Union[str, typing.List[str]]] = None,
-):
-    """Select DataFrame cased on condition
-
-    Match either exact values (values) or a logical condition (conditions).
-
-    Example:
-        >>> df = pd.DataFrame(data={'col1': [3, 14, -2, 28],
-                                    'col2': [8, 21, 1, 34]})
-        >>> sidekick.select_values(df, column='col1', values=[3])
-          col1  col2
-        0    3	   8
-        >>> sidekick.select_values(df, column='col1', values=[14, -2, 28])
-          col1  col2
-        0   14	  21
-        1   -2     1
-        2   28    34
-        >>> sidekick.select_values(df, column=df.columns[0], values=[3], conditions=[">5"])
-           col1  col2
-        0    3     8
-        1   14	  21
-        2   28    34
-
-    Args:
-        table: DataFrame
-        column: Column to find values or match condition for
-        values: Values to find exact values for. Defaults to None.
-        conditions: Logical conditions to match for. Defaults to None.
-
-    Returns:
-        DataFrame which fulfill the selection criteria
-    """
-
-    return select_or_filter(
-        table,
-        column=column,
-        values=values,
-        conditions=conditions,
-    )
+filter_values = partial(select_or_filter, invert_selection=True)
+select_values = partial(select_or_filter, invert_selection=False)
 
 
 def split(
