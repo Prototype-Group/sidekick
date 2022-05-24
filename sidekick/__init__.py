@@ -11,7 +11,7 @@ from .inspection import (
     plot_outliers,
     plot_pairs,
     plot_scatter,
-    show_missing,
+    show_summary,
 )
 from .preprocess import (
     add_split,
@@ -45,7 +45,7 @@ __all__ = [
     "plot_outliers",
     "plot_pairs",
     "plot_scatter",
-    "show_missing",
+    "show_summary",
 ]
 
 try:

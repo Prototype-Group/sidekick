@@ -22,13 +22,13 @@ VALID_PLOT_KINDS = {
 }
 
 
-def show_missing(
+def show_summary(
     table: pd.DataFrame,
     invalid_values: typing.Optional[
         typing.Union[typing.Any, typing.List[typing.Any]]
     ] = None,
 ) -> pd.DataFrame:
-    """Summarize fraction of missing values in a pandas DataFrame.
+    """Provide insights about your data, including number of missing values.
 
     Args:
         table: DataFrame
@@ -37,6 +37,7 @@ def show_missing(
     Returns:
        Summary of missing values in the table
     """
+
     if invalid_values is None:
         invalid_values = NOT_VALID_VALUES
 
@@ -44,11 +45,12 @@ def show_missing(
     missing_total = table.isin(invalid_values).sum()
     not_missing = total - missing_total
     percent = (missing_total / total) * 100
+    types = table.dtypes
 
     missing_data = pd.concat(
-        [not_missing, missing_total, percent],
+        [not_missing, missing_total, percent, types],
         axis=1,
-        keys=["Not Missing", "Total Missing", "% Missing"],
+        keys=["Not Missing", "Total Missing", "% Missing", "Column Types"],
     )
     missing_data.sort_values(by=["Total Missing"], inplace=True, ascending=False)
     return missing_data
@@ -65,6 +67,7 @@ def _set_figsize(
     Returns:
         figure size (height, width)
     """
+
     if figsize is None:
         figsize = (4, 5)
     return figsize
