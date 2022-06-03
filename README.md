@@ -230,6 +230,11 @@ Examples of how to use sidekick are available at: [examples/](examples/).
     - [ ] Make scatter plot for specific features
 
 - [X] Allow dataset splits based on distributions for train, valid, test
+- [X] Visualize Set sizes, basic data distributions
+- [] Explain data-leakage on column level
+- [] Inconsistent column labels (1 vs "1")
+- [] Explain class imbalance
+- [] Make sure missing target values are dropped
 - [X] Make sure that all functions are tested
 - [ ] Include new augmented dataset and are hosted
 - [X] Test upload dataset to platform

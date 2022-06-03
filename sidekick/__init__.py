@@ -22,6 +22,7 @@ from .preprocess import (
     impute_values,
     select_values,
     split,
+    create_subsets,
 )
 
 __all__ = [
@@ -46,6 +47,7 @@ __all__ = [
     "plot_pairs",
     "plot_scatter",
     "show_summary",
+    "create_subsets",
 ]
 
 try:

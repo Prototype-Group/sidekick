@@ -235,6 +235,39 @@ def select_or_filter(
 filter_values = partial(select_or_filter, invert_selection=True)
 select_values = partial(select_or_filter, invert_selection=False)
 
+def create_subsets(
+    table: pd.DataFrame,
+    test_size: float = 0.1,
+    valid_size: float = 0.125,
+    shuffle: bool = False,
+    random_state: int = 42,
+    stratify: typing.Optional[pd.DataFrame] = None,
+    **kwargs,
+):
+    """
+    Args:
+        table: DataFrame
+        test_size: Fraction of complete rows dedicated to the test set.
+        valid_size: Subsequent Fraction of complete rows dedicated to the valid set.
+        shuffle: If data should be shuffled or follow current order in dataset
+        random_state: Pseudo random number for reproducible state
+        stratify: If splits should respect specific distributions. Only valid if `shuffle=True`
+
+    Returns:
+        Two splits of the DataFrame (train, test)
+    """
+    df_complete_rows = drop_missing_values(table)
+    df_incomple_rows = pd.concat([df_complete_rows,table]).drop_duplicates(keep=False)
+    train_df, test_df = split(df_complete_rows, test_size, shuffle, random_state, stratify)
+    train_df, valid_df = split(train_df, valid_size, shuffle, random_state, stratify)
+    train_df = pd.concat([train_df, df_incomple_rows])
+    train_df["Set"] = "Train"
+    valid_df["Set"] = "Valid"
+    test_df["Set"] = "Test"
+    df = pd.concat([train_df, valid_df, test_df])
+    df = df.reset_index()
+    return df
+
 
 def split(
     table: pd.DataFrame,
