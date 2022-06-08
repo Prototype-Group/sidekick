@@ -231,8 +231,8 @@ Examples of how to use sidekick are available at: [examples/](examples/).
 
 - [X] Allow dataset splits based on distributions for train, valid, test
 - [X] Visualize Set sizes, basic data distributions
-- [] Explain data-leakage on column level
-- [] Inconsistent column labels (1 vs "1")
+- [ ] Explain data-leakage on column level
+- [ ] Inconsistent column labels (1 vs "1")
 - [X] Explain class imbalance
 - [X] Make sure there are no imputed target values
 - [X] Make sure that all functions are tested
