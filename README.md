@@ -1,45 +1,59 @@
 # Sidekick (Beta) [![Build Status](https://travis-ci.com/Peltarion/sidekick.svg?token=nkS94uQqBVFyK1JitpGf&branch=master)](https://travis-ci.com/Peltarion/sidekick)
+
 This code is the sidekick to the superhero that is the Peltarion Platform. Sidekick
 handles the mundane tasks like bundling up data into the Platform's preferred
 format or sending data examples to the deployment endpoints to get predictions.
 
-Sidekick's aim is to make it easier to
-* get data in
-* get predictions out
+Sidekick's aim is to make it easier to:
+
+* Prepare and inspect data
+* Upload data to the platform
+* Get predictions out from the platform
 
 We hope that sidekick will help more people experience the end-to-end flow of a deep learning
 project and appreciate the value that the Platform provides.
 
+## Getting started with Python
+
+If you are unfamiliar with Python and how to install it, we recommend you to follow these two guides:
+
+* [Setting up Python3](https://docs.python-guide.org/starting/installation/#python-3-installation-guides)
+* [Learning Python](https://realpython.com/python-first-steps/#how-to-download-and-install-python)
 
 ## Installation of sidekick
+
 **Requirements** Sidekick requires python 3.5+.
 
 When installing sidekick we recommend using a separate virtual environment, see e.g.
 [the tutorial *Python virtual environments a primer*](https://realpython.com/python-virtual-environments-a-primer/).
 
-Install package and dependencies with pip directly from GitHub:
-```console
+Then install Sidekick as a package directly from Github with:
+
+```shell
 pip install git+https://github.com/Peltarion/sidekick#egg=sidekick
 ```
 
 ## Get data in - Create a Platform compatible dataset
+
 When creating a dataset zip you can load the data in two separate ways.
 Both require loading the data in a Pandas `DataFrame` and assume all columns
 only contain one type of data with the same shape.
 
 ### 1) Load data in memory objects
+
 Store objects directly in the `Series` (columns of your `DataFrame`). This
 works for all scalars (floats, integers and strings of one dimension) as well
 as [Pillow](https://pillow.readthedocs.io/en/stable/) images and numpy arrays.
 
-**Example**
+#### Example
 
 This is such an example with a progressbar enabled:
 
 ```python
 df.head()
 ```
-```
+
+```text
 float_column          image_column                numpy_column
     0.248851  <PIL.Image.Image ...  [0.18680, 0.61951, 0.83...
     0.523621  <PIL.Image.Image ...  [0.75213, 0.44948, 0.82...
@@ -65,7 +79,7 @@ Columns may also point to paths of object. Which columns are paths should be
 indicated in the `path_columns`. Like the in-memory version these may also be
 preprocessed.
 
-**Example**
+#### Example
 
 This is an example where all images are loaded from a path,
 preprocessed to have the same shape and type and then placed in the dataset.
@@ -73,6 +87,7 @@ preprocessed to have the same shape and type and then placed in the dataset.
 ```python
 df.head()
 ```
+
 ```text
 float_column string_column                                  image_file_column
     0.248851           foo  /var/folders/7t/80jfy0rd3l7f31xdd3rw0_jw0000gn...
@@ -101,13 +116,13 @@ sidekick.create_dataset(
 )
 ```
 
-
 ## Get data in - Upload dataset through Data API
+
 Peltarion provides a public Data API that enables the users to programmatically get data into the
 platform.
 
 
-**Example**
+#### Example
 
 This example shows how to upload a single file to the Peltarion Platform.
 
@@ -137,11 +152,11 @@ response = client.upload_data(
 ![dataset_upload example](static/image/dataset_upload_example.png "Dataset upload example")
 
 ## Get predictions out - Use a deployed experiment
+
 To connect to an enabled deployment use the `sidekick.Deployment` class. This
 class takes the information you find on the deployment page of an experiment.
 
-
-**Example**
+#### Example
 
 This example shows how to query an enabled deployment for image classification.
 
@@ -172,7 +187,8 @@ client.feature_specs_out
 
 To predict result of one image (here `test.png`) use `predict`.
 
-**Example**
+#### Example
+
 ```python
 from PIL import Image
 
@@ -182,6 +198,7 @@ image = Image.open('test.png')
 # Get predictions from model
 client.predict(image=image)
 ```
+
 Note: If the feature name is not a valid python variable, e.g., `Image.Input`, use `predict_many` instead of `predict`.
 
 ### Test deployment with many samples - predict_many
@@ -189,7 +206,8 @@ Note: If the feature name is not a valid python variable, e.g., `Image.Input`, u
 To efficiently predict the results of multiple input samples (here, `test1.png`, `test2.png`) use
 `predict_many`.
 
-**Example**
+#### Example
+
 ```python
 client.predict_many([
     {'image': Image.open('test1.png')},
@@ -204,7 +222,8 @@ method, which returns a generator that lazily polls the deployment when needed.
 This allows you to immediatly start exploring the results instead of waiting
 for all predictions to finnish.
 
-**Example**
+#### Example
+
 ```python
 client.predict_lazy([
     {'image': Image.open('test1.png')},
@@ -213,13 +232,22 @@ client.predict_lazy([
 ```
 
 ### Compatible filetypes
+
 The filetypes compatible with sidekick may shown by:
+
 ```python
 print(sidekick.encode.FILE_EXTENSION_ENCODERS)
 ```
 
 # Examples
+
 Examples of how to use sidekick are available at: [examples/](examples/).
+To start the notebooks (ends with extention .ipynb), you will need to install jupyter notebook and run those files with jupyter.
+
+Guides for installing and using jupyter notebooks:
+
+* https://jupyter.org/install
+* https://docs.jupyter.org/en/latest/install/notebook-classic.html
 
 
 # TODO:
