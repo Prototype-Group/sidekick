@@ -1,39 +1,54 @@
 # Sidekick (Beta) [![Build Status](https://travis-ci.com/Peltarion/sidekick.svg?token=nkS94uQqBVFyK1JitpGf&branch=master)](https://travis-ci.com/Peltarion/sidekick)
 
-This code is the sidekick to the superhero that is the Peltarion Platform. Sidekick
-handles the mundane tasks like bundling up data into the Platform's preferred
-format or sending data examples to the deployment endpoints to get predictions.
+Sidekick is a package that helps you interact with features on the Peltarion platform. It serves to perform things that are either not yet implemented on the platform but are needed for solving a machine learning project end-to-end or simplifies the interaction with features you might do several times in a project, s.a. making predictions from a trained model. Multiple types of data are supported (tabular, text, images), but with most development on tabular data.
 
-Sidekick's aim is to make it easier to:
+Currently, Sidekick allows you to do the following:
 
-* Prepare and inspect data
-* Upload data to the platform
-* Get predictions out from the platform
+* Prepare your data to create splits, remove missing values, and more
+* Inspect data you want to upload to the Platform
+* [Convert your dataset to work with the Platform](#make-your-data-have-a-format-that-is-supported-on-the-platform)
+* [Upload your prepared data to the Platform](#upload-dataset-through-the-peltarion-platform's-data-api)
+* [Make predictions with models you have trained on the Platform](#make-predictions-with-a-trained-and-deployed-model-on-the-platform)
 
-We hope that sidekick will help more people experience the end-to-end flow of a deep learning
-project and appreciate the value that the Platform provides.
+If you experience any issues or feel that features are missing from Sidekick, you can always open an issue [here](https://github.com/Peltarion/sidekick/issues/new/choose)
 
 ## Getting started with Python
 
-If you are unfamiliar with Python and how to install it, we recommend you to follow these two guides:
+If you are unfamiliar with Python and how to install it, we recommend that you install Anaconda, a method that simplifies your python installation:
+
+* [Install Anaconda](https://docs.anaconda.com/anaconda/install/)
+
+If you just want to install python, you can follow one of the guides listed here:
 
 * [Setting up Python3](https://docs.python-guide.org/starting/installation/#python-3-installation-guides)
 * [Learning Python](https://realpython.com/python-first-steps/#how-to-download-and-install-python)
 
 ## Installation of sidekick
 
-**Requirements** Sidekick requires python 3.5+.
+**Requirements** Sidekick requires python version 3.5 or newer.
 
-When installing sidekick we recommend using a separate virtual environment, see e.g.
-[the tutorial *Python virtual environments a primer*](https://realpython.com/python-virtual-environments-a-primer/).
+If you are unfamiliar with python and how to install python, we recommend you follow the section [Getting started with python](#getting-started-with-python)
 
-Then install Sidekick as a package directly from Github with:
+We also recommend you to create a virtual environment and install Sidekick there. This is a general best practice in python and ensures that only the packages we need are installed and with the correct versions.
+
+Here are some guides for setting up and activating a virtual environment. These guides assumes that you have installed Anaconda or python and are running these commands in a terminal:
+
+* [Creating a virtual environment](https://realpython.com/python-virtual-environments-a-primer/#create-it)
+* [Activating the virtual environment](https://realpython.com/python-virtual-environments-a-primer/#activate-it)
+
+Once the virtual environment is activated you can install Sidekick directly from Github:
 
 ```shell
 pip install git+https://github.com/Peltarion/sidekick#egg=sidekick
 ```
 
-## Get data in - Create a Platform compatible dataset
+## `TODO` Prepare data
+
+
+## `TODO` Inspect data
+
+
+## Make your data have a format that is supported on the platform
 
 When creating a dataset zip you can load the data in two separate ways.
 Both require loading the data in a Pandas `DataFrame` and assume all columns
@@ -116,7 +131,7 @@ sidekick.create_dataset(
 )
 ```
 
-## Get data in - Upload dataset through Data API
+## Upload dataset through the Peltarion Platform's Data API
 
 Peltarion provides a public Data API that enables the users to programmatically get data into the
 platform.
@@ -151,7 +166,7 @@ response = client.upload_data(
 
 ![dataset_upload example](static/image/dataset_upload_example.png "Dataset upload example")
 
-## Get predictions out - Use a deployed experiment
+## Make predictions with a trained and deployed model on the Platform
 
 To connect to an enabled deployment use the `sidekick.Deployment` class. This
 class takes the information you find on the deployment page of an experiment.
@@ -244,7 +259,13 @@ print(sidekick.encode.FILE_EXTENSION_ENCODERS)
 Examples of how to use sidekick are available at: [examples/](examples/).
 To start the notebooks (ends with extention .ipynb), you will need to install jupyter notebook and run those files with jupyter.
 
-Guides for installing and using jupyter notebooks:
+If you have installed Anaconda, then jupyter notebook is already installed and can be started by executing the following command in your terminal:
+
+```shell
+jupyter notebook
+```
+
+If this command is not recognized, you can install jupyter notebook by following one of these guides:
 
 * https://jupyter.org/install
 * https://docs.jupyter.org/en/latest/install/notebook-classic.html
@@ -253,20 +274,29 @@ Guides for installing and using jupyter notebooks:
 # TODO:
 
 - [ ] Create notebook covering the data exploration and preprocessing end-to-end --> https://peltarion.com/knowledge-center/documentation/datasets-view/data-preprocessing
+
 - [ ] Make notebook for more extensive visualization - https://www.kaggle.com/code/pmarcelino/comprehensive-data-exploration-with-python/notebook
     - [ ] Find correlation automatically
     - [ ] Make scatter plot for specific features
 
-- [X] Allow dataset splits based on distributions for train, valid, test
-- [X] Visualize Set sizes, basic data distributions
-- [ ] Explain data-leakage on column level
-- [ ] Inconsistent column labels (1 vs "1")
-- [X] Explain class imbalance
-- [X] Make sure there are no imputed target values
-- [X] Make sure that all functions are tested
-- [ ] Include new augmented dataset and are hosted
-- [X] Test upload dataset to platform
-- [ ] Update README for preprocessing and data exploration instructions
-    - [ ] Instructions for installing and starting preprocessing [examples/preprocess-and-inspect-data.ipynb](examples/preprocess-and-inspect-data.ipynb)
-- [ ] Update README to simplify for new users
-- [ ] Refactor and improve the names of new functions
+- README
+  - [-] Update README to simplify for new users
+  - [ ] Provide instructions for installing and starting preprocessing [examples/preprocess-and-inspect-data.ipynb](examples/preprocess-and-inspect-data.ipynb)
+  - [ ] Consider moving examples of how to use sidekick to separate notebooks
+  - [ ] Link to notebooks/examples of what sidekick can do when mentioned in the beginning on the README
+
+- Data Preprocessing functionality
+  - [ ] Explain data-leakage on column level
+  - [ ] Inconsistent column labels (1 vs "1")
+  - [X] Allow dataset splits based on distributions for train, valid, test
+  - [X] Visualize Set sizes, basic data distributions
+  - [X] Explain class imbalance
+  - [X] Make sure there are no imputed target values
+  - [X] Make sure that all functions are tested
+  - [X] Include the new augmented dataset
+  - [X] Test upload dataset to platform
+  - [ ] Refactor and improve the names of new functions
+
+- Issues that should be opened and worked on later
+  - [ ] Allow inspect to work for more data types.
+  - [ ] Allow impute to work for more data types
