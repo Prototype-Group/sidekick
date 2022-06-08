@@ -233,8 +233,8 @@ Examples of how to use sidekick are available at: [examples/](examples/).
 - [X] Visualize Set sizes, basic data distributions
 - [] Explain data-leakage on column level
 - [] Inconsistent column labels (1 vs "1")
-- [] Explain class imbalance
-- [] Make sure missing target values are dropped
+- [X] Explain class imbalance
+- [X] Make sure there are no imputed target values
 - [X] Make sure that all functions are tested
 - [ ] Include new augmented dataset and are hosted
 - [X] Test upload dataset to platform

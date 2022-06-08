@@ -107,7 +107,7 @@ Note: If the columns contain missing values the visualization methods might not 
 ## What is the problem?
 It is impossible to train a model on data containing missing values.
 ## How to detect the problem?
-Using the show_summary function highligt if there the missing values and in which column.
+Using the show_summary function, we can highligt if there are missing values and in which columns.
 """
 # %%
 display(sidekick.show_summary(table))
@@ -132,6 +132,8 @@ sidekick.show_summary(table)
 
 - For categories of type float64 and sometimes int64, the "mean" or "replace" imputation is the most likely.
 - For string, object and sometimes int64 typed columns, the "mode" inputation is the most likely to use.
+
+Note: You should not impute data for your target column, it is preferable to drop the rows where the target value is missing.
 """
 # %%
 # #### Mean imputation
@@ -189,9 +191,29 @@ table = sidekick.impute_values(table, columns=table.columns, target="Insurance L
 table = sidekick.impute_values(
     table, columns=table.columns, target="Insurance Level", method="auto"
 )
-
 # %%
-
+# After having imputed or removed the missing data, we make sure that we no longer have any
+display(sidekick.show_summary(table))
 # %%
+# TODO column types
+# TODO replace value in column ("1" vs 1)
+# %%
+# Class imbalance
+## What is the problem?
+# Having imbalanced classes can lead to deceptively good looking model performance, and undesirable model behaviour. 
+# For example in a binary classification scenarion, if your data consists of 90% class 1 and 10 % class 2, a model that learns to always predict class 1 will have a 90% accuracy.
+# %%
+## How do you detect the problem?
+# The simplest way is to plot your target column as we did above
+# Also, The percentages of specific classes can be calculated as such:
+# %%
+display(df['Insurance Level'].value_counts(normalize=True))
+# %% 
+# In this dataset the data is clearly imbalanced, with the Silver class consisting of more data than the other two classes combined.
+# %%
+## How do you deal with the problem?
+# There are a few ways of tackling imbalanced classes: See the imbalanced data sections here: https://peltarion.com/knowledge-center/documentation/datasets-view/data-preprocessing/tabular-data-preprocessing
+# It is important to be aware that you have imbalanced classes, because this indicates that metrics such as accuracy are not good indicators of model performance.
+# Here are some suggestions for more suitable metrics to focus here: https://peltarion.com/knowledge-center/documentation/evaluation-view/measure-performance-when-working-with-imbalanced-data
 
 # %%
