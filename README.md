@@ -7,7 +7,7 @@ Currently, Sidekick provides:
 * Data preprocessing. Create dataset splits, remove missing values, imputation, and more
 * Data inspection for data exploration (histogram, correlation plot, etc)
 * [Convert your dataset to work with the Platform](#make-your-data-have-a-format-that-is-supported-on-the-platform)
-* [Upload your prepared data to the Platform](#upload-dataset-through-the-peltarion-platform's-data-api)
+* [Upload your prepared data to the Platform](#upload-dataset-through-the-peltarion-platforms-data-api)
 * [Make predictions with models you have trained on the Platform](#make-predictions-with-a-trained-and-deployed-model-on-the-platform)
 
 If you experience any issues or feel that features are missing from Sidekick, you can always open an issue [here](https://github.com/Peltarion/sidekick/issues/new/choose)
