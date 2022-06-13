@@ -24,11 +24,14 @@ dataset to the project that the token is tied to. The Data API consumer could pr
 `dataset_description` to the dataset. If omitted, default name and description will be set to `Sidekick upload`
 
 ```python
+dataset_name='My dataset'
+dataset_description='My description'
 filepaths = ['path/to/dataset.zip']
+
 response = client.upload_data(
     filepaths=filepaths,
-    name='My dataset',
-    description='My description'
+    name=dataset_name,
+    description=dataset_description,
 )
 ```
 
