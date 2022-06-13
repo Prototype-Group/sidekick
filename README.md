@@ -1,11 +1,11 @@
 # Sidekick (Beta) [![Build Status](https://travis-ci.com/Peltarion/sidekick.svg?token=nkS94uQqBVFyK1JitpGf&branch=master)](https://travis-ci.com/Peltarion/sidekick)
 
-Sidekick is a package that helps you interact with features on the Peltarion platform. It serves to perform things that are either not yet implemented on the platform but are needed for solving a machine learning project end-to-end or simplifies the interaction with features you might do several times in a project, s.a. making predictions from a trained model. Multiple types of data are supported (tabular, text, images), but with most development on tabular data.
+Sidekick is a package that helps you interact with features on the Peltarion platform. Sidekick aims to provide all functionality needed for solving machine learning projects end-to-end outside of and on the Pletarion platform. 
 
-Currently, Sidekick allows you to do the following:
+Currently, Sidekick provides:
 
-* Prepare your data to create splits, remove missing values, and more
-* Inspect data you want to upload to the Platform
+* Data preprocessing. Create dataset splits, remove missing values, imputation, and more
+* Data inspection for data exploration (histogram, correlation plot, etc)
 * [Convert your dataset to work with the Platform](#make-your-data-have-a-format-that-is-supported-on-the-platform)
 * [Upload your prepared data to the Platform](#upload-dataset-through-the-peltarion-platform's-data-api)
 * [Make predictions with models you have trained on the Platform](#make-predictions-with-a-trained-and-deployed-model-on-the-platform)
