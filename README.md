@@ -14,7 +14,7 @@ If you experience any issues or feel that features are missing from Sidekick, yo
 
 ## Getting started with Python
 
-If you are unfamiliar with Python and how to install it, we recommend that you install Anaconda, a method that simplifies your python installation:
+If you are unfamiliar with Python and how to install it, we recommend that you install Anaconda, a method that simplifies your Python installation:
 
 * [Install Anaconda](https://docs.anaconda.com/anaconda/install/)
 
@@ -29,9 +29,9 @@ If you just want to install python, you can follow one of the guides listed here
 
 If you are unfamiliar with python and how to install python, we recommend you follow the section [Getting started with python](#getting-started-with-python)
 
-We also recommend you to create a virtual environment and install Sidekick there. This is a general best practice in python and ensures that only the packages we need are installed and with the correct versions.
+We also recommend you create a virtual environment and install Sidekick there. This is a general best practice in python and ensures that only the packages we need are installed and with the correct versions.
 
-Here are some guides for setting up and activating a virtual environment. These guides assumes that you have installed Anaconda or python and are running these commands in a terminal:
+Here are some guides for setting up and activating a virtual environment. These guides assume that you have installed Anaconda or python and are running these commands in a terminal:
 
 * [Creating a virtual environment](https://realpython.com/python-virtual-environments-a-primer/#create-it)
 * [Activating the virtual environment](https://realpython.com/python-virtual-environments-a-primer/#activate-it)
@@ -44,16 +44,16 @@ pip install git+https://github.com/Peltarion/sidekick#egg=sidekick
 
 # Usage
 
-Examples of how to use sidekick are available at: [examples/](examples/).
-To start the notebooks (ends with extention .ipynb), you will need to install jupyter notebook and run those files with jupyter.
+Examples of how to use sidekick are available at [examples/](examples/).
+To start the notebooks (ends with extension .ipynb), you will need to install Jupyter notebook and run those files.
 
-If you have installed Anaconda, then jupyter notebook is already installed and can be started by executing the following command in your terminal:
+If you have installed Anaconda, then Jupyter notebook is already installed and can be started by executing the following command in your terminal:
 
 ```shell
 jupyter notebook
 ```
 
-If this command is not recognized, you can install jupyter notebook by following one of these guides:
+If this command is not recognized, you can install Jupyter notebook by following one of these guides:
 
 * https://jupyter.org/install
 * https://docs.jupyter.org/en/latest/install/notebook-classic.html
