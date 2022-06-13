@@ -8,7 +8,7 @@ class takes the information you find on the deployment page of an experiment.
 
 This example shows how to query an enabled deployment for image classification.
 
-![deployment example](static/image/deployment_example.png "Deployment example")
+![deployment example](../static/image/deployment_example.png "Deployment example")
 
 Use the `url` and `token` displayed in the dark box.
 

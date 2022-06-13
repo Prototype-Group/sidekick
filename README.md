@@ -70,4 +70,4 @@ If this command is not recognized, you can install jupyter notebook by following
 
 ## Make predictions with a trained and deployed model on the Platform
 
-[See: Make prediction to a deployed model on platform](./)
+[See: Make prediction to a deployed model on platform](./pages/03_make_prediction_tp_deployed_model.md)

@@ -9,7 +9,7 @@ platform.
 
 This example shows how to upload a single file to the Peltarion Platform.
 
-![dataAPI example](static/image/dataAPI_example.png "Data API example")
+![dataAPI example](../static/image/dataAPI_example.png "Data API example")
 
 Use the `url` and `token` displayed in the modal that appears when clicking the `Data API` button in the Dataset view.
 
@@ -32,4 +32,4 @@ response = client.upload_data(
 )
 ```
 
-![dataset_upload example](static/image/dataset_upload_example.png "Dataset upload example")
+![dataset_upload example](../static/image/dataset_upload_example.png "Dataset upload example")
